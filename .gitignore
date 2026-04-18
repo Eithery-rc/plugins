@@ -1,0 +1,30 @@
+# Output from runs — never commit
+out/
+**/_extracted.json
+
+# Virtual env
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# Personal PDFs and Excel
+*.pdf
+*.xlsx
+*.xls
+*.csv
+# Except test fixtures and golden artifacts
+!tests/fixtures/*.pdf
+!tests/fixtures/*.json
+!tests/golden/*.xlsx
+!tests/golden/*.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config with personal data is ~/.config/ip-reports/, never checked in
