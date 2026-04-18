@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Extracted bank statement",
+  "type": "object",
+  "required": ["source_pdf", "bank", "account", "period", "transactions"],
+  "properties": {
+    "source_pdf": { "type": "string", "description": "Original PDF filename" },
+    "bank": { "type": "string", "enum": ["Jusan", "Alatau", "TBC", "Other"] },
+    "account": {
+      "type": "object",
+      "required": ["currency", "iso_code", "number", "opening_balance", "closing_balance"],
+      "properties": {
+        "currency": { "type": "string", "description": "3-letter code, e.g. USD" },
+        "iso_code": { "type": "string", "description": "3-digit numeric, e.g. 840 for USD" },
+        "number": { "type": "string" },
+        "opening_balance": { "type": "number" },
+        "closing_balance": { "type": "number" }
+      }
+    },
+    "period": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "string", "format": "date" },
+        "end":   { "type": "string", "format": "date" }
+      }
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "direction", "amount", "currency", "vo_code"],
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "direction": { "type": "string", "enum": ["in", "out", "fee"] },
+          "amount": { "type": "number", "minimum": 0 },
+          "currency": { "type": "string" },
+          "counterparty": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "account": { "type": "string" },
+              "country": { "type": "string" }
+            }
+          },
+          "purpose": { "type": "string" },
+          "reference": { "type": "string" },
+          "vo_code": { "type": "string", "description": "181-И code, e.g. 20200" },
+          "vo_description": { "type": "string" }
+        }
+      }
+    }
+  }
+}

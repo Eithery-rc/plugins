@@ -1,0 +1,72 @@
+{
+  "source_pdf": "sample_q3_2025.pdf",
+  "bank": "Jusan",
+  "account": {
+    "currency": "USD",
+    "iso_code": "840",
+    "number": "KZ88998PB00011541307",
+    "opening_balance": 19157.12,
+    "closing_balance": 26751.79
+  },
+  "period": {
+    "start": "2025-07-01",
+    "end": "2025-09-30"
+  },
+  "transactions": [
+    {
+      "date": "2025-07-11",
+      "direction": "in",
+      "amount": 4000.00,
+      "currency": "USD",
+      "counterparty": { "name": "Blu Banyan Inc.", "country": "US" },
+      "purpose": "Invoice payment",
+      "reference": "FDF2507102885800",
+      "vo_code": "20200",
+      "vo_description": "Зачисление от нерезидента за услуги"
+    },
+    {
+      "date": "2025-07-28",
+      "direction": "in",
+      "amount": 4000.00,
+      "currency": "USD",
+      "counterparty": { "name": "Blu Banyan Inc.", "country": "US" },
+      "purpose": "Invoice payment",
+      "reference": "FEF2507255806900",
+      "vo_code": "20200",
+      "vo_description": "Зачисление от нерезидента за услуги"
+    },
+    {
+      "date": "2025-08-15",
+      "direction": "out",
+      "amount": 2000.00,
+      "currency": "USD",
+      "counterparty": { "name": "Own TBC account", "account": "GE55TB7935545064400006" },
+      "purpose": "Transfer to own account",
+      "reference": "TRF2025081501",
+      "vo_code": "61100",
+      "vo_description": "Перевод резидентом на свой счёт за пределами РФ"
+    },
+    {
+      "date": "2025-08-31",
+      "direction": "fee",
+      "amount": 22.50,
+      "currency": "USD",
+      "counterparty": { "name": "Jusan Bank" },
+      "purpose": "Account maintenance fee",
+      "reference": "FEE2025083101",
+      "vo_code": "80150",
+      "vo_description": "Комиссии банка-нерезидента"
+    },
+    {
+      "date": "2025-09-26",
+      "direction": "in",
+      "amount": 4000.00,
+      "currency": "USD",
+      "counterparty": { "name": "Blu Banyan Inc.", "country": "US" },
+      "purpose": "Invoice payment",
+      "reference": "FDF2509252486300",
+      "vo_code": "20200",
+      "vo_description": "Зачисление от нерезидента за услуги"
+    }
+  ]
+}
