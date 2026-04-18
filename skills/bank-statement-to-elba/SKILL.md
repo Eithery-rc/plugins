@@ -7,6 +7,17 @@ description: Use when user asks to process a foreign-bank PDF statement (Jusan K
 
 You are helping an ИП on ПСН who receives foreign currency income on overseas bank accounts (Jusan Kazakhstan, TBC Georgia, or similar). Convert their bank statement PDFs into three artifacts.
 
+## Handling ambiguity — always ask, never guess
+
+Wrong data corrupts the КУДиР and 181-И report — the user relies on these for taxes and валютный контроль. When the PDF is unclear, **stop and ask the user**. Do NOT fill in plausible-sounding defaults.
+
+The two main ambiguity points:
+
+1. **Counterparty is missing or opaque in the PDF** (some banks print only an IBAN or a cryptic code). Don't invent a name. Show the user the transaction (date, amount, direction, whatever identifier the PDF gave) and ask who it is. Once confirmed, save to `~/.config/ip-reports/contractors.json` so the next run of the same counterparty is automatic.
+2. **VO code (181-И) classification is uncertain** — rules in `references/vo_codes.md` cover the typical cases but not every corner. When unclear, show the user the transaction and the 2–3 most plausible codes with their meanings, let them pick. Mark `"?"` only as a last resort when even the user can't decide.
+
+Batch transactions when asking — if there are 5 unclear ones, present them as a numbered list in one message, not 5 separate prompts.
+
 ## Flow
 
 ### Step 1 — Profile check
@@ -30,7 +41,7 @@ Use the `Read` tool on the PDF path. Do NOT try regex parsers or pdfplumber — 
 - **Period**: start and end dates (ISO `YYYY-MM-DD`).
 - **All transactions** — incoming, outgoing, fees. Each must have:
   - `date` (ISO), `direction` (`in` / `out` / `fee`), `amount` (positive number), `currency`,
-  - `counterparty` (at least `name`, if present also `account`, `country`),
+  - `counterparty` (at least `name`; **if the PDF does not name a counterparty, stop and ask the user** — see "Handling ambiguity" above — then save the resolved name to `contractors.json`),
   - `purpose` (original text), `reference` (FDF.../FEF.../etc.),
   - `vo_code` (see classification rules below),
   - `vo_description`.
@@ -42,7 +53,7 @@ Read `references/vo_codes.md` and apply the rules:
 - `direction=in` + foreign counterparty → **20200**.
 - `direction=out` + counterparty is the user's own account (match by name / IBAN in profile / contractors) → **61100**.
 - `direction=out`/`fee` + keywords «комиссия», `fee`, `maintenance`, `commission` → **80150**.
-- Uncertain? Use `"?"` and note the user in summary.md. Do NOT guess.
+- **Uncertain? Ask the user.** Present the transaction (date, amount, direction, counterparty, purpose) and propose the 2–3 most plausible codes with short explanations. Accept their answer and use it. Only mark `"?"` if the user cannot decide either — then flag it in `summary.md` for later follow-up.
 
 ### Step 4 — Write extracted JSON
 
@@ -65,7 +76,8 @@ Example for Jusan, Q3 2025:
 
 - How many transactions, how many incoming, total ₽ by CBR rate.
 - Point to the generated `*-summary.md` for the Эльба post-import checklist.
-- Flag any `vo_code="?"` entries that need manual classification.
+- Flag any remaining `vo_code="?"` entries — should be rare since most ambiguity was resolved interactively during processing.
+- List any new counterparties that were added to `contractors.json` this run.
 
 ## Batch mode
 
@@ -73,7 +85,8 @@ If multiple PDFs are given: process each independently (separate `out/<name>/`).
 
 ## Do NOT
 
-- Invent `vo_code` for ambiguous transactions — mark `"?"` instead.
+- Invent a `vo_code`, counterparty, or purpose for ambiguous transactions — **ask the user first** (see "Handling ambiguity" above). Only mark `"?"` as a last resort after the user couldn't decide either.
+- Silently skip a transaction with a missing counterparty or "normalize" it to a generic label — ask the user who it is and save the answer to `contractors.json` for future runs.
 - Modify `elba_import.txt` by hand after `main.py` writes it.
 - Commit `~/.config/ip-reports/` contents to any repository.
 - Submit to `main.py` any transactions whose date has no CBR rate (CBR skips weekends/holidays; for such dates, use the prior business day's rate — the `cbr_rates.get_usd_rate` helper handles the fetch, not date adjustment; if you get a 404, walk back one day at a time).

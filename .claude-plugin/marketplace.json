@@ -9,7 +9,7 @@
       "name": "ip-reports",
       "source": "./",
       "description": "Russian ИП reporting — convert foreign-bank PDF statements into Эльба-importable .txt + local КУДиР xlsx + ВЭД 181-И report. AI-first parsing.",
-      "version": "0.3.0"
+      "version": "0.4.0"
     }
   ]
 }
