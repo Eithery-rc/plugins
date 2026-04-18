@@ -1,0 +1,11 @@
+{
+  "name": "ip-reports",
+  "version": "0.1.0",
+  "description": "Russian ИП reporting — convert foreign-bank PDF statements into Эльба-importable .txt + local КУДиР xlsx + ВЭД 181-И report. AI-first parsing; no bank-specific regex.",
+  "author": {
+    "name": "Roman Chikalenko",
+    "email": "chikalenkor@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["ip", "elba", "kudir", "ved", "kontur", "russian-accounting", "psn", "181-I"]
+}
