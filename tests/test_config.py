@@ -11,6 +11,7 @@ from config import (
     load_contractors,
     save_contractor,
     ProfileMissingError,
+    complete_inn10,
 )
 
 
@@ -66,3 +67,19 @@ def test_profile_validation_rejects_short_inn(tmp_path, monkeypatch):
             ruble_account="",
             bank_bic="",
         )
+
+
+def test_complete_inn10_computes_valid_checksum():
+    # Prefix 990900000 → control digit 4 (verified against ФНС algorithm)
+    assert complete_inn10("990900000") == "9909000004"
+    # Different prefix produces different checksum
+    assert complete_inn10("990900001") == "9909000011"
+    # Checksum is deterministic and idempotent with the same prefix
+    assert complete_inn10("123456789") == complete_inn10("123456789")
+
+
+def test_complete_inn10_rejects_invalid_prefix():
+    with pytest.raises(ValueError):
+        complete_inn10("12345678")  # 8 digits
+    with pytest.raises(ValueError):
+        complete_inn10("12345678x")  # has non-digit

@@ -145,8 +145,11 @@ def test_payer_inn_uses_contractor_inn(tmp_path):
     assert "ПлательщикИНН=7700000001" not in text
 
 
-def test_payer_inn_falls_back_to_zeros_for_unknown_contractor(tmp_path):
-    """When the counterparty isn't in contractors.json, inn defaults to '0000000000'."""
+def test_payer_inn_empty_when_contractor_unknown_or_inn_blank(tmp_path):
+    """Эльба rejects made-up ИНН (checksum mismatch) and rejects 0000000000 too.
+    If the contractor's ИНН is blank, we must emit an empty ПлательщикИНН= —
+    Эльба then asks the user to manually pair once, remembering the mapping
+    by name/account for subsequent imports."""
     import json
     data = json.loads(FIXTURE.read_text(encoding="utf-8"))
     rates = {"2025-07-11": 77.9029, "2025-07-28": 79.5527, "2025-09-26": 83.6069}
@@ -156,5 +159,9 @@ def test_payer_inn_falls_back_to_zeros_for_unknown_contractor(tmp_path):
         contractors={},  # empty — counterparty not registered
         rates=rates, output_path=out,
     )
-    text = out.read_text(encoding="utf-8")
-    assert "ПлательщикИНН=0000000000" in text
+    # Preserve CRLF on Windows
+    with out.open(encoding="utf-8", newline="") as fh:
+        text = fh.read()
+    assert "ПлательщикИНН=\r\n" in text
+    # the old '0000000000' fallback must not appear on the Плательщик side
+    assert "ПлательщикИНН=0000000000" not in text

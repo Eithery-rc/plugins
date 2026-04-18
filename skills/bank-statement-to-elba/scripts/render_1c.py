@@ -69,7 +69,7 @@ def render_elba_txt(
             "amount_rub": amount_rub,
             "reference": tx["reference"],
             "counterparty_name": tx["counterparty"]["name"],
-            "counterparty_inn": contractor.inn or "0000000000",
+            "counterparty_inn": contractor.inn,  # empty string when unset → ПлательщикИНН= (empty); Эльба ok with it
             "description": _payment_description(tx["date"], contractor.description_template),
         })
 

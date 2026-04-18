@@ -97,6 +97,26 @@ def load_contractors() -> Dict[str, Contractor]:
     return {name: Contractor(**payload) for name, payload in raw.items()}
 
 
+def complete_inn10(prefix9: str) -> str:
+    """Given a 9-digit prefix, return the full 10-digit ИНН with a valid
+    checksum (per the ФНС algorithm). Useful for foreign contractors that
+    have no real Russian ИНН — pick a prefix starting with `9909` (the
+    official code for foreign orgs registered in РФ) and let this fill in
+    the control digit so Эльба accepts the value on save.
+
+    >>> complete_inn10("990900000")
+    '9909000004'
+    """
+    if len(prefix9) != 9 or not prefix9.isdigit():
+        raise ValueError(f"Prefix must be exactly 9 digits: {prefix9!r}")
+    coeffs = [2, 4, 10, 3, 5, 9, 4, 6, 8]
+    total = sum(int(prefix9[i]) * coeffs[i] for i in range(9))
+    check = total % 11
+    if check > 9:
+        check = check % 10
+    return prefix9 + str(check)
+
+
 def _yes_no(prompt: str, default: bool = True) -> bool:
     suffix = " (Y/n): " if default else " (y/N): "
     ans = input(prompt + suffix).strip().lower()
@@ -132,5 +152,9 @@ if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1 and sys.argv[1] == "wizard":
         run_wizard()
+    elif len(sys.argv) > 2 and sys.argv[1] == "gen-inn":
+        print(complete_inn10(sys.argv[2]))
     else:
-        print("Usage: python config.py wizard")
+        print("Usage:")
+        print("  python config.py wizard           # first-time profile setup")
+        print("  python config.py gen-inn 990900000  # complete a 9-digit ИНН prefix with a valid checksum")
