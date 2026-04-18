@@ -58,20 +58,19 @@ def render_elba_txt(
     for tx in incoming:
         rate = rates[tx["date"]]
         amount_rub = round(tx["amount"] * rate, 2)
+        contractor = contractors.get(tx["counterparty"]["name"], Contractor(
+            name=tx["counterparty"]["name"],
+            inn="",
+            operation_type="",
+            description_template="поступление средств за {month} {year}",
+        ))
         docs.append({
             "date": _to_ddmmyyyy(tx["date"]),
             "amount_rub": amount_rub,
             "reference": tx["reference"],
             "counterparty_name": tx["counterparty"]["name"],
-            "description": _payment_description(
-                tx["date"],
-                contractors.get(tx["counterparty"]["name"], Contractor(
-                    name=tx["counterparty"]["name"],
-                    inn="",
-                    operation_type="",
-                    description_template="поступление средств за {month} {year}",
-                )).description_template,
-            ),
+            "counterparty_inn": contractor.inn or "0000000000",
+            "description": _payment_description(tx["date"], contractor.description_template),
         })
 
     total = sum(d["amount_rub"] for d in docs)
@@ -115,7 +114,7 @@ def render_elba_txt(
         A(f"Плательщик={d['counterparty_name']}")
         A(f"Плательщик1={d['counterparty_name']}")
         A("ПлательщикСчет=40702810000000000001")
-        A("ПлательщикИНН=7700000001")
+        A(f"ПлательщикИНН={d['counterparty_inn']}")
         A("ПлательщикБИК=044525000")
         A("ПлательщикБанк1=Payer Correspondent Bank")
         A("ПлательщикКорсчет=30101810000000000001")

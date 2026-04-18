@@ -12,7 +12,7 @@ def test_golden_elba_txt_unchanged(tmp_path):
         tax_system="PSN", ruble_account="40802810123456789012", bank_bic="044525000",
     )
     contractor = Contractor(
-        name="Blu Banyan Inc.", inn="",
+        name="Blu Banyan Inc.", inn="9909999999",
         operation_type="Начисление вознаграждения по агентскому договору",
         description_template="поступление средств за {month} {year}",
     )

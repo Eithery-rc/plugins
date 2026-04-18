@@ -68,7 +68,11 @@ def _output_paths(out_dir: Path, extracted: dict) -> Dict[str, Path]:
 
 
 def run(input_path: Path, out_dir: Path, cleanup_input: bool = True) -> None:
-    """Render 3 artifacts from extracted JSON into out_dir."""
+    """Render artifacts from extracted JSON into out_dir.
+
+    Always writes journal.xlsx + summary.md. Additionally writes
+    elba-import.txt when the profile opts in (profile.use_elba=True).
+    """
     extracted = json.loads(input_path.read_text(encoding="utf-8"))
     profile = load_profile()
     contractors = load_contractors()
@@ -78,10 +82,11 @@ def run(input_path: Path, out_dir: Path, cleanup_input: bool = True) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = _output_paths(out_dir, extracted)
 
-    render_elba_txt(
-        extracted=extracted, profile=profile, contractors=contractors,
-        rates=rates, output_path=paths["elba"],
-    )
+    if profile.use_elba:
+        render_elba_txt(
+            extracted=extracted, profile=profile, contractors=contractors,
+            rates=rates, output_path=paths["elba"],
+        )
     render_journal_xlsx(
         extracted=extracted, profile=profile, contractors=contractors,
         rates=rates, output_path=paths["journal"],
@@ -93,6 +98,7 @@ def run(input_path: Path, out_dir: Path, cleanup_input: bool = True) -> None:
         extracted=extracted,
         total_rub=round(total_rub, 2),
         incoming_count=incoming_count,
+        include_elba_steps=profile.use_elba,
         output_path=paths["summary"],
     )
 

@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-import re
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict
 
@@ -40,6 +39,9 @@ class Profile:
     tax_system: str
     ruble_account: str
     bank_bic: str
+    # Optional. Older profiles (written before v0.5.0) don't have this field;
+    # load_profile() defaults it to True so they keep working.
+    use_elba: bool = True
 
     def __post_init__(self):
         if len(self.inn) not in (10, 12):
@@ -53,6 +55,9 @@ class Profile:
 @dataclass(frozen=True)
 class Contractor:
     name: str
+    # Placeholder ИНН that matches the contractor card in Эльба (any unique
+    # number is fine — just must match what the user entered in that card).
+    # Empty string is allowed when use_elba=False or before the user has set it up.
     inn: str
     operation_type: str
     description_template: str
@@ -92,18 +97,31 @@ def load_contractors() -> Dict[str, Contractor]:
     return {name: Contractor(**payload) for name, payload in raw.items()}
 
 
+def _yes_no(prompt: str, default: bool = True) -> bool:
+    suffix = " (Y/n): " if default else " (y/N): "
+    ans = input(prompt + suffix).strip().lower()
+    if not ans:
+        return default
+    return ans in ("y", "yes", "д", "да")
+
+
 def run_wizard() -> Profile:
-    """Interactive wizard — prompts for 6 fields, validates, saves."""
+    """Interactive wizard — prompts for profile fields, validates, saves."""
     print("=== ip-reports: профиль ИП ===")
     fio = input("ФИО полностью (как в Эльбе): ").strip()
     inn = input("ИНН (12 цифр для ИП): ").strip()
     ogrnip = input("ОГРНИП (15 цифр, можно пустым): ").strip()
     tax_system = input("Система налогообложения (PSN/USN_income/USN_income_minus_expense/OSNO): ").strip()
-    ruble_account = input("Расчётный счёт РФ (20 цифр, можно пустым): ").strip() or "40802810123456789012"
-    bank_bic = input("БИК банка (9 цифр, можно пустым): ").strip() or "044525000"
+    use_elba = _yes_no("Используешь Контур.Эльбу для бухучёта?", default=True)
+    if use_elba:
+        ruble_account = input("Расчётный счёт РФ (20 цифр, можно пустым): ").strip() or "40802810123456789012"
+        bank_bic = input("БИК банка (9 цифр, можно пустым): ").strip() or "044525000"
+    else:
+        ruble_account = ""
+        bank_bic = ""
     profile = Profile(
         fio=fio, inn=inn, ogrnip=ogrnip, tax_system=tax_system,
-        ruble_account=ruble_account, bank_bic=bank_bic,
+        ruble_account=ruble_account, bank_bic=bank_bic, use_elba=use_elba,
     )
     save_profile(profile)
     print(f"Профиль сохранён: {_profile_path()}")

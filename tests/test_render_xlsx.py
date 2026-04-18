@@ -25,7 +25,7 @@ def _profile():
 def _contractor():
     return Contractor(
         name="Blu Banyan Inc.",
-        inn="",
+        inn="9909999999",
         operation_type="Начисление вознаграждения по агентскому договору",
         description_template="поступление средств за {month} {year}",
     )

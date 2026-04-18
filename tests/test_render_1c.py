@@ -22,7 +22,7 @@ def _profile() -> Profile:
 def _contractor() -> Contractor:
     return Contractor(
         name="Blu Banyan Inc.",
-        inn="",
+        inn="9909999999",
         operation_type="Начисление вознаграждения по агентскому договору",
         description_template="поступление средств за {month} {year}",
     )
@@ -125,3 +125,36 @@ def test_description_follows_month_logic(tmp_path):
     assert "НазначениеПлатежа=поступление средств за июль 2025" in text
     # 26.09 → day 26 > 15 → current month = сентябрь 2025
     assert "НазначениеПлатежа=поступление средств за сентябрь 2025" in text
+
+
+def test_payer_inn_uses_contractor_inn(tmp_path):
+    """ПлательщикИНН comes from Contractor.inn so Эльба links the payment
+    to the existing contractor card by ИНН match."""
+    import json
+    data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    rates = {"2025-07-11": 77.9029, "2025-07-28": 79.5527, "2025-09-26": 83.6069}
+    out = tmp_path / "elba.txt"
+    render_elba_txt(
+        extracted=data, profile=_profile(),
+        contractors={"Blu Banyan Inc.": _contractor()},
+        rates=rates, output_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    assert "ПлательщикИНН=9909999999" in text
+    # And no leftover placeholder from the old hardcoded value
+    assert "ПлательщикИНН=7700000001" not in text
+
+
+def test_payer_inn_falls_back_to_zeros_for_unknown_contractor(tmp_path):
+    """When the counterparty isn't in contractors.json, inn defaults to '0000000000'."""
+    import json
+    data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    rates = {"2025-07-11": 77.9029, "2025-07-28": 79.5527, "2025-09-26": 83.6069}
+    out = tmp_path / "elba.txt"
+    render_elba_txt(
+        extracted=data, profile=_profile(),
+        contractors={},  # empty — counterparty not registered
+        rates=rates, output_path=out,
+    )
+    text = out.read_text(encoding="utf-8")
+    assert "ПлательщикИНН=0000000000" in text
