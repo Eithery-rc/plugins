@@ -1,6 +1,6 @@
 {
   "name": "ip-reports",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Russian ИП reporting — convert foreign-bank PDF statements into Эльба-importable .txt + local КУДиР xlsx + ВЭД 181-И report. AI-first parsing; no bank-specific regex.",
   "author": {
     "name": "Roman Chikalenko",

@@ -11,6 +11,9 @@ import main
 
 FIXTURE = Path(__file__).parent / "fixtures" / "sample_extracted.json"
 
+# Sample fixture: bank=Jusan, period=2025-07-01..2025-09-30 → slug '2025-Q3'
+PREFIX = "Jusan-2025-Q3"
+
 
 @pytest.fixture
 def setup_config(tmp_path, monkeypatch):
@@ -49,9 +52,9 @@ def test_main_produces_three_files(setup_config, tmp_path):
     with patch("main.get_usd_rate", side_effect=_fake_rate):
         main.run(input_path=src, out_dir=out_dir, cleanup_input=True)
 
-    assert (out_dir / "elba_import.txt").exists()
-    assert (out_dir / "journal.xlsx").exists()
-    assert (out_dir / "summary.md").exists()
+    assert (out_dir / f"{PREFIX}-elba-import.txt").exists()
+    assert (out_dir / f"{PREFIX}-journal.xlsx").exists()
+    assert (out_dir / f"{PREFIX}-summary.md").exists()
     # cleanup removed input
     assert not src.exists()
 
@@ -77,4 +80,26 @@ def test_main_cli_args(setup_config, tmp_path, monkeypatch):
     with patch("main.get_usd_rate", side_effect=_fake_rate):
         main.cli()
 
-    assert (out_dir / "elba_import.txt").exists()
+    assert (out_dir / f"{PREFIX}-elba-import.txt").exists()
+
+
+def test_period_slug_quarter():
+    assert main._period_slug({"start": "2025-07-01", "end": "2025-09-30"}) == "2025-Q3"
+    assert main._period_slug({"start": "2025-01-01", "end": "2025-03-31"}) == "2025-Q1"
+    assert main._period_slug({"start": "2025-04-01", "end": "2025-06-30"}) == "2025-Q2"
+    assert main._period_slug({"start": "2025-10-01", "end": "2025-12-31"}) == "2025-Q4"
+
+
+def test_period_slug_full_year():
+    assert main._period_slug({"start": "2025-01-01", "end": "2025-12-31"}) == "2025"
+
+
+def test_period_slug_full_month():
+    assert main._period_slug({"start": "2025-07-01", "end": "2025-07-31"}) == "2025-07"
+    assert main._period_slug({"start": "2025-02-01", "end": "2025-02-28"}) == "2025-02"
+
+
+def test_period_slug_arbitrary_range_falls_back_to_dates():
+    assert main._period_slug({"start": "2025-07-11", "end": "2025-09-26"}) == "2025-07-11_2025-09-26"
+    # Cross-year range
+    assert main._period_slug({"start": "2024-12-15", "end": "2025-01-14"}) == "2024-12-15_2025-01-14"

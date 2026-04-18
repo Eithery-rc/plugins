@@ -54,12 +54,17 @@ Produce a JSON matching `schemas/transactions.json`. Write to `out/<pdf_stem>/_e
 cd <plugin_root>/skills/bank-statement-to-elba && python scripts/main.py --input out/<pdf_stem>/_extracted.json --out out/<pdf_stem>
 ```
 
-This creates `elba_import.txt`, `journal.xlsx`, `summary.md`, and deletes `_extracted.json`.
+This creates three files with names derived from bank + reporting period: `{Bank}-{period-slug}-elba-import.txt`, `{Bank}-{period-slug}-journal.xlsx`, `{Bank}-{period-slug}-summary.md`. Slug: `2025` for a full year, `2025-Q3` for a calendar quarter, `2025-07` for a full month, `2025-07-11_2025-09-26` for an arbitrary range. `_extracted.json` is deleted on success.
+
+Example for Jusan, Q3 2025:
+- `Jusan-2025-Q3-elba-import.txt`
+- `Jusan-2025-Q3-journal.xlsx`
+- `Jusan-2025-Q3-summary.md`
 
 ### Step 6 — Report to user
 
 - How many transactions, how many incoming, total ₽ by CBR rate.
-- Point to `out/<pdf_stem>/summary.md` for the Эльба post-import checklist.
+- Point to the generated `*-summary.md` for the Эльба post-import checklist.
 - Flag any `vo_code="?"` entries that need manual classification.
 
 ## Batch mode
