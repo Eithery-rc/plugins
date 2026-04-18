@@ -9,7 +9,8 @@ Claude Code plugin for Russian ИП-ПСН reporting. Turns foreign-bank PDF sta
 ## Install
 
 ```
-/plugin install <your-github-user>/ip-reports
+/plugin marketplace add Eithery-rc/plugins
+/plugin install ip-reports@eithery
 ```
 
 ## First run

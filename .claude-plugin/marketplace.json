@@ -1,15 +1,15 @@
 {
-  "name": "ip-reports",
+  "name": "eithery",
   "owner": {
     "name": "Roman Chikalenko",
     "email": "chikalenkor@gmail.com"
   },
   "plugins": [
     {
-      "name": "bank-statement-to-elba",
-      "source": "./skills/bank-statement-to-elba",
-      "description": "Convert foreign-bank PDF statements (Jusan, TBC, ...) to Эльба-importable 1CClientBankExchange .txt + local КУДиР xlsx + ВЭД 181-И report. AI-first parsing.",
-      "version": "0.1.0"
+      "name": "ip-reports",
+      "source": "./",
+      "description": "Russian ИП reporting — convert foreign-bank PDF statements into Эльба-importable .txt + local КУДиР xlsx + ВЭД 181-И report. AI-first parsing.",
+      "version": "0.2.0"
     }
   ]
 }
